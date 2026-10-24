@@ -1,13 +1,11 @@
 //
-// test_unlock.exe - Test application for the Unlock Credential Provider
+// test_unlock.exe - Command line unlocker for the Unlock Credential Provider
 //
 // Usage: test_unlock.exe <username> <password> [domain]
 //
 // This program:
-// 1. Locks the workstation
-// 2. Waits 3 seconds for the lock screen to load
-// 3. Connects to the credential provider's named pipe
-// 4. Sends an UNLOCK command to auto-unlock the screen
+// 1. Connects to the credential provider's named pipe
+// 2. Sends an UNLOCK command to auto-unlock the screen
 //
 
 #include <windows.h>
@@ -93,7 +91,7 @@ static BOOL SendUnlockCommand(const char* pszDomain, const char* pszUsername, co
 
 int main(int argc, char* argv[])
 {
-    printf("=== Unlock Credential Provider Test ===\n\n");
+    printf("=== Unlock Credential Provider Command Line Tool ===\n\n");
 
     if (argc < 3) {
         printf("Usage: test_unlock.exe <username> <password> [domain]\n\n");
@@ -101,7 +99,6 @@ int main(int argc, char* argv[])
         printf("  test_unlock.exe MyUser MyPassword\n");
         printf("  test_unlock.exe MyUser MyPassword MYDOMAIN\n");
         printf("  test_unlock.exe MyUser MyPassword .\n");
-        printf("\nThis will lock the screen, wait 3 seconds, then unlock.\n");
         return 1;
     }
 
@@ -111,23 +108,8 @@ int main(int argc, char* argv[])
 
     printf("[INFO] Username: %s\n", pszUsername);
     printf("[INFO] Domain:   %s\n", pszDomain);
-    printf("[INFO] Locking workstation in 2 seconds...\n");
-    Sleep(2000);
 
-    // Lock the workstation
-    if (!LockWorkStation()) {
-        printf("[ERROR] LockWorkStation failed. Error: %lu\n", GetLastError());
-        printf("[INFO] You may need to run this from an interactive session.\n");
-        return 1;
-    }
-    printf("[INFO] Workstation locked.\n");
-
-    // Wait for the lock screen to fully load and credential providers to initialize.
-    // Windows 11 can take several seconds to load the lock screen and instantiate providers.
-    printf("[INFO] Waiting 5 seconds for lock screen to initialize...\n");
-    Sleep(5000);
-
-    // Send unlock command
+    // Send unlock command directly
     printf("[INFO] Sending unlock command...\n");
     if (SendUnlockCommand(pszDomain, pszUsername, pszPassword)) {
         printf("[OK] Unlock command sent successfully.\n");
