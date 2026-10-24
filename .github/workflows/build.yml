@@ -2,8 +2,8 @@ name: Build Hodor
 
 on:
   push:
-    branches: [ "main" ] # 如果你默认分支是 master，请改成 master
-  workflow_dispatch: # 允许你在 Actions 页面手动触发
+    branches: [ "main" ]
+  workflow_dispatch:
 
 jobs:
   build:
@@ -16,9 +16,12 @@ jobs:
     - name: Setup MSBuild
       uses: microsoft/setup-msbuild@v2
 
-    - name: Run build script
+    # 这一步是关键：使用微软官方的开发者命令提示符环境来运行 build.bat
+    - name: Run build script in Developer Command Prompt
       shell: cmd
-      run: build.bat
+      run: |
+        call "C:\Program Files\Microsoft Visual Studio\2022\Enterprise\Common7\Tools\VsDevCmd.bat"
+        build.bat
 
     - name: Upload Artifacts
       uses: actions/upload-artifact@v4
