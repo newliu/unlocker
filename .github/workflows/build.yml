@@ -13,23 +13,25 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v4
 
-    # 使用官方开发环境命令行
+    # 加载 MSVC 开发者环境
     - name: Setup MSVC Environment
       uses: ilammy/msvc-dev-cmd@v1
       with:
         arch: x64
 
-    # 直接手动调用 cl.exe 编译，完全绕过 build.bat
+    # 编译 DLL，补全了 secur32.lib 和 shlwapi.lib
     - name: Compile UnlockProvider.dll
       shell: cmd
       run: |
-        cl.exe /LD /O2 /EHsc /DUNICODE /D_UNICODE ClassFactory.cpp Dll.cpp helpers.cpp PipeListener.cpp UnlockCredential.cpp UnlockProvider.cpp /link /DEF:UnlockProvider.def /OUT:UnlockProvider.dll ole32.lib advapi32.lib user32.lib
+        cl.exe /LD /O2 /EHsc /DUNICODE /D_UNICODE ClassFactory.cpp Dll.cpp helpers.cpp PipeListener.cpp UnlockCredential.cpp UnlockProvider.cpp /link /DEF:UnlockProvider.def /OUT:UnlockProvider.dll ole32.lib advapi32.lib user32.lib secur32.lib shlwapi.lib
 
+    # 编译纯净版 test_unlock.exe
     - name: Compile test_unlock.exe
       shell: cmd
       run: |
         cl.exe /O2 /EHsc test_unlock.cpp /Fe:test_unlock.exe /link user32.lib
 
+    # 收集编译好的文件供下载
     - name: Upload Artifacts
       uses: actions/upload-artifact@v4
       with:
